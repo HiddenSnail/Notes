@@ -1,0 +1,12 @@
+问题1：当前基本编译没过，/ld: warning: cannot find entry symbol __start; defaulting to 00000000004000d4：
+
+问题2：调用printf等基本输入输出函数，出现找不到库的情况
+答：工具链为裸板工具链，不会把相关的IO输出库编出来
+
+问题3：为什么官网上http://www.loongnix.org/index.php/Cross-compile 的编译器提供gnu-linux版本和elf版本？
+答：gnu-linux版本用于开发Linux应用，而elf版本用于裸机程序以及RTOS程序的开发
+
+待学习：
+1. 手动编译交叉编译器
+2. 熟悉ld的链接路径
+3. 手动编译glibc
