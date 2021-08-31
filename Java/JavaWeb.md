@@ -14,8 +14,6 @@
 ```cmd
 C:\Windows\System32\drivers\etc\host
 ```
-
-
 ![image-20210825092144005](JavaWeb.assets/image-20210825092144005.png)
 
 
@@ -180,5 +178,18 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 ```
 
 - 前一个【键】 http://maven.apache.org/POM/4.0.0 指代 **命名空间**， 只是一个全局唯一字符串而已
-- 后一个【值】http://maven.apache.org/maven-v4_0_0.xsd 指代**XSD location URI** , 指示了前一个命名空间所对应的 XSD 文件的位置， xml parser 可以利用这个信息获取到 XSD 文件， 通过它对所有属于命名空间 http://maven.apache.org/POM/4.0.0 的元素结构进行校验， 因此这个值必然是可以访问的， 且访问到的内容是一个 XSD 文件的内容
+- 后一个【值】http://maven.apache.org/maven-v4_0_0.xsd 指代**XSD location URI** , 指示了前一个命名空间所对应的 XSD 文件的位置， xml parser 可以利用这个信息获取到 XSD 文件， 通过它对所有属于命名空间 http://maven.apache.org/POM/4.0.0 的元素结构进行校验， 因此这个值必然是可以访问的， 且访问到的内容是一个XSD 文件的内容
 
+
+
+
+## 5. Tomcat
+
+
+
+## 6. Servlet
+
+Servlet是Sun公司开发的一门动态Web技术，它是一组接口规范。开发Servlet程序需完成以下2个步骤：
+
++ 编写一个Java类，实现class接口
++ 把开发好的Java类部署到Web应用服务中
