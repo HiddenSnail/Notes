@@ -87,20 +87,16 @@ wtimeout取值为任意正整数，用于设置写操作的时间门限，仅在
 
 ### 1.4 删除（Delete）
 
----
 ## 2. DataModeling
 数据建模的关键问题就是如何在*应用程序需求*、*数据库性能*和*数据检索模式*3者之间进行平衡。当我们为数据进行建模时，需要从程序是如何使用数据的以及数据本身固有的结构出发，进行设计。
 
----
 #### 2.1 Flexible Schema
 与SQL不同，MongoDB在同一个Collection下Document的格式可以不相同，并且可以随意增删改Document的字段。
 当然，你可以要求Collection下的Document都保持一致的结构，通过使用[document validation rules](https://docs.mongodb.com/manual/core/schema-validation/),这样在插入或更新Collection时就会进行检查。
 
----
 #### 2.2 Document Structure
 支持Document的内嵌，也支持通过 _id关联多个document
 
----
 #### 2.3 Atomicity of Write Operations
 在MongoDB中写操作在单个Document是原子性的，即使修改了一个Document下的多个嵌入式Document那么它也是原子性的。
 
@@ -110,7 +106,6 @@ MongoDB为了保证多Document的写原子性，4.0版本开始，设计了基�
 
 大多数情况下，multi-document transcation 会导致与single-document相比更大的性能损耗，因此合理的使用嵌入式Document设计，尽量减少multi-document transactions操作，是一个好的选择。
 
----
 #### 2.4 Data Use and Performance
 为数据建模的时候，要考虑应用程序会怎么使用数据，比如你的APP只是经常性地插入数据，那么请考虑使用[Capped Collection](https://docs.mongodb.com/manual/core/capped-collections/)
 
@@ -408,12 +403,175 @@ shard1:PRIMARY> rs.config()
 
  `rs.freeze(100)`让对应节点保持备份状态100秒
 
-`rs.freeze(0)`接触保持状态
+`rs.freeze(0)`解除阻止选举状态
 
+#### 3.12.6 获取状态
 
+```shell
+shard1:PRIMARY> rs.status()
+{
+        "set" : "shard1",
+        "date" : ISODate("2021-09-02T03:19:05.061Z"),
+        "myState" : 1,
+        "term" : NumberLong(6),
+        # 表示当前成员从哪个成员进行复制
+        "syncingTo" : "",
+        "syncSourceHost" : "",
+        "syncSourceId" : -1,
+        "heartbeatIntervalMillis" : NumberLong(2000),
+        "optimes" : {
+                "lastCommittedOpTime" : {
+                        "ts" : Timestamp(1630552735, 1),
+                        "t" : NumberLong(6)
+                },
+                "readConcernMajorityOpTime" : {
+                        "ts" : Timestamp(1630552735, 1),
+                        "t" : NumberLong(6)
+                },
+                "appliedOpTime" : {
+                        "ts" : Timestamp(1630552735, 1),
+                        "t" : NumberLong(6)
+                },
+                "durableOpTime" : {
+                        "ts" : Timestamp(1630552735, 1),
+                        "t" : NumberLong(6)
+                }
+        },
+        "lastStableCheckpointTimestamp" : Timestamp(1630552725, 1),
+        "members" : [
+                {
+                        "_id" : 0,
+                        "name" : "10.19.1.39:27018",
+                        # 是否可达，0不可达，1可达
+                        "health" : 1,
+                        "state" : 2,
+                        "stateStr" : "SECONDARY",
+                        "uptime" : 240261,
+                        "optime" : {
+                                "ts" : Timestamp(1630552735, 1),
+                                "t" : NumberLong(6)
+                        },
+                        "optimeDurable" : {
+                                "ts" : Timestamp(1630552735, 1),
+                                "t" : NumberLong(6)
+                        },
+                        "optimeDate" : ISODate("2021-09-02T03:18:55Z"),
+                        "optimeDurableDate" : ISODate("2021-09-02T03:18:55Z"),
+                        # 当前成员最后一次收到其它成员心跳的时间
+                        "lastHeartbeat" : ISODate("2021-09-02T03:19:04.882Z"),
+                        "lastHeartbeatRecv" : ISODate("2021-09-02T03:19:03.573Z"),
+                        # 当前服务器到达某个成员所花费的平均时间，可以根据这个字段选择从哪个成员进行同步
+                        "pingMs" : NumberLong(0),
+                        "lastHeartbeatMessage" : "",
+                        # 表示当前成员从哪个成员进行复制
+                        "syncingTo" : "10.19.1.38:27018",
+                        "syncSourceHost" : "10.19.1.38:27018",
+                        "syncSourceId" : 1,
+                        "infoMessage" : "",
+                        "configVersion" : 5
+                },
+                {
+                        "_id" : 1,
+                        "name" : "10.19.1.38:27018",
+                        "health" : 1,
+                        "state" : 1,
+                        # 描述不同成员的状态
+                        "stateStr" : "PRIMARY",
+                        # 该成员可用一直到现在经历的时长，单位秒
+                        "uptime" : 758544,
+                        "optime" : {
+                                "ts" : Timestamp(1630552735, 1),
+                                "t" : NumberLong(6)
+                        },
+                        # 成员OpLog中最后一个操作发生的时间
+                        "optimeDate" : ISODate("2021-09-02T03:18:55Z"),
+                        "syncingTo" : "",
+                        "syncSourceHost" : "",
+                        "syncSourceId" : -1,
+                        "infoMessage" : "",
+                        "electionTime" : Timestamp(1630312275, 1),
+                        "electionDate" : ISODate("2021-08-30T08:31:15Z"),
+                        "configVersion" : 5,
+                        # 只会出现在执行该命令的成员中
+                        "self" : true,
+                        "lastHeartbeatMessage" : ""
+                },
+                {
+                        "_id" : 2,
+                        "name" : "10.19.1.37:27018",
+                        "health" : 1,
+                        "state" : 7,
+                        "stateStr" : "ARBITER",
+                        "uptime" : 758537,
+                        "lastHeartbeat" : ISODate("2021-09-02T03:19:03.839Z"),
+                        "lastHeartbeatRecv" : ISODate("2021-09-02T03:19:05.058Z"),
+                        "pingMs" : NumberLong(0),
+                        "lastHeartbeatMessage" : "",
+                        "syncingTo" : "",
+                        "syncSourceHost" : "",
+                        "syncSourceId" : -1,
+                        "infoMessage" : "",
+                        "configVersion" : 5
+                }
+        ],
+        "ok" : 1,
+        "operationTime" : Timestamp(1630552735, 1),
+        "$gleStats" : {
+                "lastOpTime" : Timestamp(0, 0),
+                "electionId" : ObjectId("7fffffff0000000000000006")
+        },
+        "lastCommittedOpTime" : Timestamp(1630552735, 1),
+        "$configServerState" : {
+                "opTime" : {
+                        "ts" : Timestamp(1630552735, 1),
+                        "t" : NumberLong(5)
+                }
+        },
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1630552735, 1),
+                "signature" : {
+                        "hash" : BinData(0,"B1wnXxnMtUalE3CajZK3qNv3qBI="),
+                        "keyId" : NumberLong("6946966076357869598")
+                }
+        }
+}
+```
+
+#### 3.12.7 复制源
+`rs.status()`中的`syncingTo`字段是可以说明对应节点的复制源是哪个，那么如何修改这个复制源呢？
+使用`rs.syncFrom(<host>)`或者`db.adminCommand({"replSetSyncFrom":"<host>"})`，大概会花费上几秒中的时间切换到目标复制源。
+
+在使用该条命令时，要警惕出现复制循环，即A从B同步数据，B从C同步数据，C从A同步数据，原因是**复制环中的的成员都不可能成为主节点**（why？），数据只能越来越落后。
+
+####  3.12.8 禁用复制链
+当一个成员节点以另一个成员节点作为复制源时，就会形成复制链，而复制链会导致数据同步的速度变慢。可以禁用复制链，即将`rs.config()`中的`setting.chainingAllowed`字段设置为`false`即可。
+这样做的结果就是，所有成员都会从主节点上复制数据，如果主节点不可用，再从其它备份节点获取数据。
+
+#### 3.12.9 延迟计算
+`db.printReplicationInfo()`函数可以看到当前节点oplog当前的大小和覆盖的时间，以及其op的起止时间。
+
+```shell
+shard1:PRIMARY> db.printReplicationInfo()
+configured oplog size:   100MB
+log length start to end: 191897secs (53.3hrs)
+oplog first event time:  Tue Aug 31 2021 10:10:29 GMT+0800 (CST)
+oplog last event time:   Thu Sep 02 2021 15:28:46 GMT+0800 (CST)
+now:                     Thu Sep 02 2021 15:28:49 GMT+0800 (CST)
+```
+
+`db.printSlaveReplicationInfo()`函数可以看到当前节点的复制源以及当前成员相对于复制源的落后程度信息
+```shell
+# 为什么主节点（10.19.1.38:27018）的复制源不是自己？？
+shard1:PRIMARY> db.printSlaveReplicationInfo()
+source: 10.19.1.39:27018
+        syncedTo: Thu Sep 02 2021 15:48:26 GMT+0800 (CST)
+        0 secs (0 hrs) behind the primary
+```
+
+#### 3.12.10 调整oplog的大小
+主节点oplog的长度可以看作是维护工作的时间窗，
 
 ### 故障模型
-
 场景：1主、1从、1仲裁
 |	 |主节点|从节点|仲裁节点|描述|
 |----|----|----|----|----|
@@ -458,7 +616,6 @@ shard1:PRIMARY> rs.config()
 
 ## 4. 分片集群（Sharded Cluster）
 
----
 #### 4.1 分片集群的组成
 一般分为3层：
 - 第一层：路由节点Mongos，路由到具体分片节点
@@ -470,8 +627,6 @@ shard1:PRIMARY> rs.config()
   ![image-20210901110636323](MongoDB学习.assets/image-20210901110636323.png)
 
   
-
----
 ## 5. 配置文件
 
 [配置参数参考](https://blog.csdn.net/zhanaolu4821/article/details/87614708)
@@ -670,7 +825,6 @@ Mongodb 的用户及角色数据一般位于当前实例的 admin数据库，sys
 **存在例外的情况是分片集群，应用接入mongos节点，鉴权数据则存放于config节点。因此有时候为了方便分片集群管理，会单独为分片内部节点创建独立的管理操作用户；**
 
 ## 7. 索引
-
 
 
 ## 8. 了解应用动态
