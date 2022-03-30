@@ -151,12 +151,19 @@ cat /proc/sys/vm/swappiness
 ```bash
 iostat -d <磁盘> -cmx 5 1
 iostat 5 1
+iostat -dmx 1 1
 ```
 
 #### *mongostat*
 用于查看mongo的读写状态
+```bash
+/usr/local/mongodb/bin/mongostat --authenticationDatabase admin --port=20000 -uroot -proot -i --discover
+```
 
 #### *mongotop*
+```bash
+mongotop -h localhost:27018 -uroot -pcaih123 --authenticationDatabase admin 20 -vvvv
+```
 
 #### *mongoperf*
 

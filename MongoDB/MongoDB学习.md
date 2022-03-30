@@ -1184,6 +1184,9 @@ mongodb://root:123456@10.19.1.20:27018,10.19.1.21:27018,10.19.1.22:27018/newdb?a
 
 ```
 
+(官方URI说明)[https://docs.mongodb.com/manual/reference/connection-string/]
+
+
 ## 10. MongoDB GridFS
 
 ### 10.1 基本概念

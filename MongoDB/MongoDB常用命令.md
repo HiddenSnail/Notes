@@ -6,31 +6,35 @@
 
 ```shell
 # 查看当前DB
-$ db
+db
 
 # 查看当前数据库状态
-$ db.stats()
+db.stats()
 
 # 列出所有数据库
-$ show dbs
+show dbs
 
 # 列出当前数据库所有collections
-$ show collections
+show collections
 
 # 列出当前数据库所有用户信息
-$ show users
+show users
 
 # 列出当前数据库所有角色
-$ show roles
+show roles
 
 # 列出最近5次操作
-$ show profile
+show profile
 
 # 列出当前正在执行的操作
-$ db.
+db.currentOp()
+db.currenOp().inprog.length
 
 # 查看所有配置参数
-$ db.adminCommand({"getParameter": 1, *})
+db.adminCommand({ getParameter : "*" })
+
+# 可以获取统计信息
+db.serverStatus().metrics.commands
 ```
 
 ## 2. 数据统计
@@ -53,17 +57,29 @@ $ db.dropDatabase({ w: <value>, j: <boolean>, wtimeout: <number> })
 
 ## 4. 用户维护
 ```shell
-# 查看所有节点的运行状态, 参考URL: https://www.jianshu.com/p/073bd0fab907
-mongostat -h 10.19.1.81:20000 -u root -p root --authenticationDatabase admin -i --discover
-
 # 查看mongo服务的内存占用情况
 top -p $(pidof mongod)
 
 # 以单机模式启动副本集节点
 mongod --bind_ip 127.0.0.1 --port 33333 --dbpath /app/mongodb/data/shard_27018 --fork 
 
+# 新建用户, 该用户在mydb下认证，且在admin库下有clusterAdmin的角色，其它所有库有readWrite角色
+# https://www.mongodb.com/docs/manual/reference/built-in-roles/#cluster-administration-roles
+# https://blog.csdn.net/ls_call520/article/details/103915836
+use mydb
+db.createUser({
+	"user": "loop",
+	"pwd": "loop",
+	"roles": [{role: "clusterAdmin", db: "admin"}, "readWrite"]}, 
+    {w:"majority", wtimeout: 5000})
+
 # 查看用户
+use admin
 db.system.users.find()
+
+# 删除单个用户
+use admin
+db.dropUser("username")
 
 # 删除所有用户
 db.system.users.remove({})
@@ -76,6 +92,15 @@ db.adminCommand({"replSetGetStatus":1})['syncingTo']
 
 # 查看当前节点落后主节点的时间
 rs.printSlaveReplicationInfo()
+
+# 获取Oplog的配置大小
+rs.printReplicationInfo()
+
+# 获取oplog的开始时间和结束时间 tFirst开始，tLast结束
+db.getReplicationInfo()
+
+# 配置oplog大小
+db.adminCommand({replSetResizeOplog:1, size:51200})
 
 # 禁用复制链
 cfg=rs.config()
@@ -102,11 +127,24 @@ db.adminCommand({logRotate: 1})
 # 查看启动配置
 cat <日志文件> | grep "wiredtiger_open config"
 
+# 获取1000ms以上的慢查询 
+sudo tail data_27019.log -n 1000000 | grep ms | grep op_msg | grep find | grep -v "oplog.rs" | grep -v "getMore" | egrep "[3-9][0-9]{2,}ms" > /tmp/slow_op.log
 
+# 统计一段时间内的慢查询次数
+cat /app/mongodb/logs/archive/2022-03/shard_27018/shard_27018.log.2022-03-01T16-00-01 | grep "command: insert" | grep "2022-03-01T20:" | wc -l
 ```
 
 ## 7. 索引
 ```bash
 # 后台模式建立索引，1表示升序，-1表示降序
 db.CTL_MT_AXB_BIND_INFO.createIndex({"accessKey":1,"telX":1}, {background: true})
+```
+
+## 8. 数据导出/导入
+```bash
+# 数据导出
+nohup mongodump -h 'repset1/192.168.20.1:27017,192.168.20.2:27017,192.168.20.3:27017' -u 'root' -p 'root' --authenticationDatabase 'admin' -d bbw -o /app/backup/ &
+
+# 数据导入
+nohup mongorestore -h 'repset1/192.168.20.1:27017,192.168.20.2:27017,192.168.20.3:27017' -u 'root' -p 'root' --authenticationDatabase 'admin' -d bbw --dir /app/backup/bbw &
 ```
